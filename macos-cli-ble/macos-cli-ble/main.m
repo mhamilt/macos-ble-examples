@@ -7,10 +7,13 @@
 @interface MyPeripheralManagerDelegate: NSObject<CBPeripheralManagerDelegate>
 @property (nonatomic, assign) CBPeripheralManager* peripheralManager;
 @property (nonatomic) CBPeripheralManagerConnectionLatency nextLatency;
+@property (nonatomic, strong) CBCentral *currentCentral;
 @end
+
 @implementation MyPeripheralManagerDelegate
 + (NSString*)stringFromCBManagerState:(CBManagerState)state
 {
+    
     switch (state)
     {
         case CBManagerStatePoweredOff: return @"PoweredOff";
@@ -21,10 +24,18 @@
         case CBManagerStateUnsupported: return @"Unsupported";
     }
 }
-+ (CBUUID*)LatencyCharacteristicUuid
++ (CBUUID*)myUniqueCharacteristicUuid
 {
-    return [CBUUID UUIDWithString:@"B81672D5-396B-4803-82C2-029D34319015"]; // Generated with uuidgen
+    return [CBUUID UUIDWithString:@"2C7E85D8-E637-4518-AFF7-49D9E195FB1A"]; // Generated with uuidgen
 }
+
+- (void)peripheralManager:(CBPeripheralManager *)peripheral
+central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic
+{
+//    currentCentral
+    printf("------------------New Subscription\n------------------ ");
+}
+
 - (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral
 {
     NSLog(@"CBPeripheralManager entered state %@", [MyPeripheralManagerDelegate stringFromCBManagerState:peripheral.state]);
@@ -32,11 +43,10 @@
     {
         NSDictionary* dict = @{CBAdvertisementDataLocalNameKey: @"ConnLatencyTest"};
         
-        CBUUID *serviceUuid = [CBUUID UUIDWithString:@"180D"]; // Heart Rate
-//      CBUUID *serviceUuid = [CBUUID UUIDWithString:@"7AE48DEE-2597-4B4D-904E-A3E8C7735738"]; // Generated with uuidgen
+        CBUUID *serviceUuid = [CBUUID UUIDWithString:@"29D7544B-6870-45A4-BB7E-D981535F4525"]; // Generated with uuidgen
         CBMutableService* service = [[CBMutableService alloc] initWithType:serviceUuid primary:TRUE];
         
-        CBMutableCharacteristic* latencyCharacteristic = [[CBMutableCharacteristic alloc]  initWithType:MyPeripheralManagerDelegate.LatencyCharacteristicUuid properties:CBCharacteristicPropertyRead value:nil permissions:CBAttributePermissionsReadable]; // value:nil makes it a dynamic-valued characteristic
+        CBMutableCharacteristic* latencyCharacteristic = [[CBMutableCharacteristic alloc]  initWithType:MyPeripheralManagerDelegate.myUniqueCharacteristicUuid properties:CBCharacteristicPropertyRead value:nil permissions:CBAttributePermissionsReadable]; // value:nil makes it a dynamic-valued characteristic
         
         service.characteristics = @[latencyCharacteristic];
         [self.peripheralManager addService:service];
@@ -55,28 +65,15 @@
     NSLog(@"peripheralManagerDidStartAdvertising %d", self.peripheralManager.isAdvertising);
 
 }
-+ (CBPeripheralManagerConnectionLatency) nextLatencyAfter:(CBPeripheralManagerConnectionLatency)latency {
-    switch (latency) {
-        case CBPeripheralManagerConnectionLatencyLow: return CBPeripheralManagerConnectionLatencyMedium;
-        case CBPeripheralManagerConnectionLatencyMedium: return CBPeripheralManagerConnectionLatencyHigh;
-        case CBPeripheralManagerConnectionLatencyHigh: return CBPeripheralManagerConnectionLatencyLow;
-    }
-}
-+ (NSString*)describeLatency:(CBPeripheralManagerConnectionLatency)latency {
-    switch (latency) {
-        case CBPeripheralManagerConnectionLatencyLow: return @"Low";
-        case CBPeripheralManagerConnectionLatencyMedium: return @"Medium";
-        case CBPeripheralManagerConnectionLatencyHigh: return @"High";
-    }
-}
+
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didReceiveReadRequest:(CBATTRequest *)request {
-    if ([request.characteristic.UUID isEqualTo:MyPeripheralManagerDelegate.LatencyCharacteristicUuid]) {
+    if ([request.characteristic.UUID isEqualTo:MyPeripheralManagerDelegate.myUniqueCharacteristicUuid])
+    {
         [self.peripheralManager setDesiredConnectionLatency:self.nextLatency forCentral:request.central];
-        NSString* description = [MyPeripheralManagerDelegate describeLatency: self.nextLatency];
+        NSString* description = @"From Ble!";
         request.value = [description dataUsingEncoding:NSUTF8StringEncoding];
         [self.peripheralManager respondToRequest:request withResult:CBATTErrorSuccess];
         NSLog(@"didReceiveReadRequest:latencyCharacteristic. Responding with %@", description);
-        self.nextLatency = [MyPeripheralManagerDelegate nextLatencyAfter:self.nextLatency];
     } else {
         NSLog(@"didReceiveReadRequest: (unknown) %@", request);
     }
@@ -90,6 +87,7 @@ int main(int argc, const char * argv[])
         MyPeripheralManagerDelegate *peripheralManagerDelegate = [[MyPeripheralManagerDelegate alloc] init];
         CBPeripheralManager* peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:peripheralManagerDelegate queue:nil];
         peripheralManagerDelegate.peripheralManager = peripheralManager;
+//        [peripheralManagerDelegate.peripheralManager setDesiredConnectionLatency:CBPeripheralManagerConnectionLatencyLow forCentral:<#(nonnull CBCentral *)#>]
         [[NSRunLoop currentRunLoop] run];
     }
     return 0;
