@@ -79,8 +79,8 @@ CBUUID *characteristicUuid;
     if (deviceName)
         printf("New Device: %s\n", deviceName);
     
-    if ([[aPeripheral name] isEqualToString: @"Time"] &&
-        [[aPeripheral identifier].UUIDString isEqualTo:@"2A26C838-7DA8-4F7E-BA97-5488D3C851E4"])
+    if ([[aPeripheral name] isEqualToString: @"Time"])// &&
+//        [[aPeripheral identifier].UUIDString isEqualTo:@"2A26C838-7DA8-4F7E-BA97-5488D3C851E4"])
     {
         NSLog(@"aPeripheral.identifier: %@", [aPeripheral identifier]);
         [_manager stopScan];
@@ -96,21 +96,14 @@ CBUUID *characteristicUuid;
         [_manager connectPeripheral:peripheral options:connectOptions];
     }
     
-    [self addToPeripheralList];
+    [self addToPeripheralList:aPeripheral];
 }
-- (void) addToPeripheralList
+- (void) addToPeripheralList:(CBPeripheral *)aPeripheral
 {
-    //    if( ![self.discoveredPeripherals containsObject:aPeripheral] )
-    //    {
-    //        [self.discoveredPeripherals addObject:aPeripheral];
-            
-            //        NSUInteger anIndex = 0;
-            //        [_manager stopScan];
-            //        peripheral = [self.discoveredPeripherals objectAtIndex:anIndex];
-            //        [peripheral retain];
-            //        [_manager connectPeripheral:peripheral options:nil];
-    //    }
-    
+    if( ![self.discoveredPeripherals containsObject:aPeripheral] )
+    {
+        [self.discoveredPeripherals addObject:aPeripheral];
+    }
 }
 //------------------------------------------------------------------------------
 - (void) centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)aPeripheral
@@ -127,7 +120,7 @@ CBUUID *characteristicUuid;
     [_manager stopScan];
     
     /* If there are any known devices, automatically connect to it.*/
-    if([peripherals count] ==1)
+    if([peripherals count] >=1)
     {
         peripheral = [peripherals objectAtIndex:0];
         [_manager connectPeripheral:peripheral
@@ -195,7 +188,9 @@ CBUUID *characteristicUuid;
         {
             if (aChar.properties & CBCharacteristicPropertyRead)
             {
-                [aPeripheral readValueForCharacteristic:aChar];
+                [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
+//                [aPeripheral readValueForCharacteristic:aChar];
+//                [aPeripheral readValueForDescriptor:nil]
             }
         }
     }
@@ -214,6 +209,16 @@ CBUUID *characteristicUuid;
     NSData * updatedValue = characteristic.value;
     NSLog(@"%@", [characteristic description]);
     printf("%s\n",(char*)updatedValue.bytes);
+}
+
+- (void) peripheral:(CBPeripheral *)peripheral didDiscoverDescriptorsForCharacteristic:(CBDescriptor *)descriptor error:(NSError *)error
+{
+    
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
+{
+    
 }
 //------------------------------------------------------------------------------
 @end
