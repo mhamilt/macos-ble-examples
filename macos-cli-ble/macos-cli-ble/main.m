@@ -9,7 +9,8 @@ CBUUID *characteristicUuid;
 //------------------------------------------------------------------------------
 @interface MyPeripheralManagerDelegate: NSObject<CBPeripheralManagerDelegate>
 @property (nonatomic, assign) CBPeripheralManager* peripheralManager;
-@property (nonatomic, strong) CBCentral *currentCentral;
+@property (atomic, strong) CBCentral *currentCentral;
+@property (atomic, strong) CBMutableCharacteristic *mainCharacteristic;
 @end
 //------------------------------------------------------------------------------
 @implementation MyPeripheralManagerDelegate
@@ -31,12 +32,12 @@ CBUUID *characteristicUuid;
                   central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic
 {
     _currentCentral = central;
-    printf("------------------New Subscription\n------------------ ");
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didUnsubscribeFromCharacteristic:(CBCharacteristic *)characteristic
 {
     _currentCentral = nil;
+    
     printf("------------------LOST Subscription\n------------------ ");
 }
 - (void)peripheralManagerIsReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral
@@ -50,23 +51,23 @@ CBUUID *characteristicUuid;
     if (peripheral.state == CBManagerStatePoweredOn)
     {
         NSDictionary* dict = @{
-                        CBAdvertisementDataLocalNameKey: @"BleServiceTest",
+            CBAdvertisementDataLocalNameKey: @"BleServiceTest",
             //            CBAdvertisementDataSolicitedServiceUUIDsKey: @[serviceUuid],
             CBAdvertisementDataServiceUUIDsKey: @[serviceUuid]
         };
         
         CBMutableService* service = [[CBMutableService alloc] initWithType:serviceUuid primary:YES];
         
-        CBMutableCharacteristic* characteristic = [[CBMutableCharacteristic alloc]
-                                                          initWithType:characteristicUuid
-                                                          properties:(
-                                                                      CBCharacteristicPropertyRead |
-                                                                      CBCharacteristicPropertyNotify // needed for didSubscribeToCharacteristic
-                                                                      )
-                                                          value: nil
-                                                          permissions:CBAttributePermissionsReadable];
-    
-        service.characteristics = @[characteristic];
+        _mainCharacteristic = [[CBMutableCharacteristic alloc]
+                               initWithType:characteristicUuid
+                               properties:(
+                                           CBCharacteristicPropertyRead |
+                                           CBCharacteristicPropertyNotify // needed for didSubscribeToCharacteristic
+                                           )
+                               value: nil
+                               permissions:CBAttributePermissionsReadable];
+        
+        service.characteristics = @[_mainCharacteristic];
         [self.peripheralManager addService:service];
         [self.peripheralManager startAdvertising:dict];
         NSLog(@"startAdvertising. isAdvertising: %d", self.peripheralManager.isAdvertising);
@@ -93,25 +94,38 @@ CBUUID *characteristicUuid;
         NSString* description = @"ABCD";
         request.value = [description dataUsingEncoding:NSUTF8StringEncoding];
         [self.peripheralManager respondToRequest:request withResult:CBATTErrorSuccess];
-        NSLog(@"didReceiveReadRequest:latencyCharacteristic. Responding with %@", description);        
+        NSLog(@"didReceiveReadRequest:latencyCharacteristic. Responding with %@", description);
     }
     else
     {
         NSLog(@"didReceiveReadRequest: (unknown) %@", request);
     }
 }
+
+- (void)sendValue:(NSString *)data
+{
+    [self.peripheralManager updateValue:[data dataUsingEncoding:NSUTF8StringEncoding]
+                      forCharacteristic:_mainCharacteristic
+                   onSubscribedCentrals:@[_currentCentral]];
+}
 @end
 //------------------------------------------------------------------------------
 int main(int argc, const char * argv[])
 {
+    
     serviceUuid        = [CBUUID UUIDWithString:@"29D7544B-6870-45A4-BB7E-D981535F4525"]; // Generated with uuidgen
     characteristicUuid = [CBUUID UUIDWithString:@"B81672D5-396B-4803-82C2-029D34319015"];
     @autoreleasepool
     {
         MyPeripheralManagerDelegate *peripheralManagerDelegate = [[MyPeripheralManagerDelegate alloc] init];
-        CBPeripheralManager* peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:peripheralManagerDelegate queue:nil];
+        dispatch_queue_t ble_service = dispatch_queue_create("ble_test_service",  DISPATCH_QUEUE_SERIAL);
+        CBPeripheralManager* peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:peripheralManagerDelegate queue:ble_service];
         peripheralManagerDelegate.peripheralManager = peripheralManager;
-        CFRunLoopRun();
+        while (![peripheralManagerDelegate currentCentral]);
+        
+        NSString *stringToSend = (argc > 1) ? [NSString stringWithUTF8String:argv[1]] : @"";
+        [peripheralManagerDelegate sendValue:stringToSend];
+        
     }
     return 0;
 }
