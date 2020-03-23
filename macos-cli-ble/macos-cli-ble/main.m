@@ -58,7 +58,7 @@ CBUUID *characteristicUuid;
     if (peripheral.state == CBManagerStatePoweredOn)
     {
         NSDictionary* dict = @{
-            CBAdvertisementDataLocalNameKey: @"BleServiceTest",
+//            CBAdvertisementDataLocalNameKey: @"BleServiceTest",
             //            CBAdvertisementDataSolicitedServiceUUIDsKey: @[serviceUuid],
             CBAdvertisementDataServiceUUIDsKey: @[serviceUuid]
         };
@@ -124,8 +124,7 @@ CBUUID *characteristicUuid;
 @end
 //------------------------------------------------------------------------------
 int main(int argc, const char * argv[])
-{
-    
+{    
     serviceUuid        = [CBUUID UUIDWithString:@"29D7544B-6870-45A4-BB7E-D981535F4525"]; // Generated with uuidgen
     characteristicUuid = [CBUUID UUIDWithString:@"B81672D5-396B-4803-82C2-029D34319015"];
     @autoreleasepool
@@ -135,12 +134,12 @@ int main(int argc, const char * argv[])
         CBPeripheralManager* peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:peripheralManagerDelegate queue:ble_service];
         peripheralManagerDelegate.peripheralManager = peripheralManager;
         
-        printf("waiting to send\n");
+        printf("Sending\n");
         while (![peripheralManagerDelegate currentCentral]);
         
         NSString *stringToSend = (argc > 1) ? [NSString stringWithUTF8String:argv[1]] : @"";
         [peripheralManagerDelegate sendValue:stringToSend];
-        printf("waiting to sent\n");
+        printf("Sent\n");
     }
     return 0;
 }
