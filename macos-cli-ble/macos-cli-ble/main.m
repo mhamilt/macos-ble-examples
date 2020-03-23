@@ -44,7 +44,7 @@ CBUUID *characteristicUuid;
             CBAdvertisementDataServiceUUIDsKey: @[serviceUuid]
         };
         
-        CBMutableService* service = [[CBMutableService alloc] initWithType:serviceUuid primary:NO];
+        CBMutableService* service = [[CBMutableService alloc] initWithType:serviceUuid primary:YES];
         
         CBMutableCharacteristic* characteristic = [[CBMutableCharacteristic alloc]
                                                           initWithType:characteristicUuid
