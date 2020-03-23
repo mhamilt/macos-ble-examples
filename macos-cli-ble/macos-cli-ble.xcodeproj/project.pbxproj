@@ -33,9 +33,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		58502BC024253ACB00BB76C5 /* macos-cli-ble */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "macos-cli-ble"; sourceTree = BUILT_PRODUCTS_DIR; };
+		58502BC024253ACB00BB76C5 /* ble_peripheral */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ble_peripheral; sourceTree = BUILT_PRODUCTS_DIR; };
 		58502BC324253ACB00BB76C5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		58502BCE24253AF700BB76C5 /* ble-scan */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "ble-scan"; sourceTree = BUILT_PRODUCTS_DIR; };
+		58502BCE24253AF700BB76C5 /* ble_central */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ble_central; sourceTree = BUILT_PRODUCTS_DIR; };
 		58502BD024253AF700BB76C5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -69,8 +69,8 @@
 		58502BC124253ACB00BB76C5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				58502BC024253ACB00BB76C5 /* macos-cli-ble */,
-				58502BCE24253AF700BB76C5 /* ble-scan */,
+				58502BC024253ACB00BB76C5 /* ble_peripheral */,
+				58502BCE24253AF700BB76C5 /* ble_central */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -94,9 +94,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		58502BBF24253ACB00BB76C5 /* macos-cli-ble */ = {
+		58502BBF24253ACB00BB76C5 /* ble_peripheral */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58502BC724253ACB00BB76C5 /* Build configuration list for PBXNativeTarget "macos-cli-ble" */;
+			buildConfigurationList = 58502BC724253ACB00BB76C5 /* Build configuration list for PBXNativeTarget "ble_peripheral" */;
 			buildPhases = (
 				58502BBC24253ACB00BB76C5 /* Sources */,
 				58502BBD24253ACB00BB76C5 /* Frameworks */,
@@ -106,14 +106,14 @@
 			);
 			dependencies = (
 			);
-			name = "macos-cli-ble";
+			name = ble_peripheral;
 			productName = "macos-cli-ble";
-			productReference = 58502BC024253ACB00BB76C5 /* macos-cli-ble */;
+			productReference = 58502BC024253ACB00BB76C5 /* ble_peripheral */;
 			productType = "com.apple.product-type.tool";
 		};
-		58502BCD24253AF700BB76C5 /* ble-scan */ = {
+		58502BCD24253AF700BB76C5 /* ble_central */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58502BD224253AF700BB76C5 /* Build configuration list for PBXNativeTarget "ble-scan" */;
+			buildConfigurationList = 58502BD224253AF700BB76C5 /* Build configuration list for PBXNativeTarget "ble_central" */;
 			buildPhases = (
 				58502BCA24253AF700BB76C5 /* Sources */,
 				58502BCB24253AF700BB76C5 /* Frameworks */,
@@ -123,9 +123,9 @@
 			);
 			dependencies = (
 			);
-			name = "ble-scan";
+			name = ble_central;
 			productName = "ble-scan";
-			productReference = 58502BCE24253AF700BB76C5 /* ble-scan */;
+			productReference = 58502BCE24253AF700BB76C5 /* ble_central */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -158,8 +158,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				58502BBF24253ACB00BB76C5 /* macos-cli-ble */,
-				58502BCD24253AF700BB76C5 /* ble-scan */,
+				58502BBF24253ACB00BB76C5 /* ble_peripheral */,
+				58502BCD24253AF700BB76C5 /* ble_central */,
 			);
 		};
 /* End PBXProject section */
@@ -345,7 +345,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58502BC724253ACB00BB76C5 /* Build configuration list for PBXNativeTarget "macos-cli-ble" */ = {
+		58502BC724253ACB00BB76C5 /* Build configuration list for PBXNativeTarget "ble_peripheral" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58502BC824253ACB00BB76C5 /* Debug */,
@@ -354,7 +354,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58502BD224253AF700BB76C5 /* Build configuration list for PBXNativeTarget "ble-scan" */ = {
+		58502BD224253AF700BB76C5 /* Build configuration list for PBXNativeTarget "ble_central" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58502BD324253AF700BB76C5 /* Debug */,
