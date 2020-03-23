@@ -75,34 +75,42 @@ CBUUID *characteristicUuid;
 {
     NSMutableArray *peripherals = [self mutableArrayValueForKey:@"discoveredPeripherals"];
     const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
+    
     if (deviceName)
         printf("New Device: %s\n", deviceName);
     
-    if ([[aPeripheral name] isEqualToString: @"Time"])
+    if ([[aPeripheral name] isEqualToString: @"Time"] &&
+        [[aPeripheral identifier].UUIDString isEqualTo:@"2A26C838-7DA8-4F7E-BA97-5488D3C851E4"])
     {
-        NSLog(@"aPeripheral.identifier: %@", aPeripheral.identifier);
-        printf("Found Time\n");
+        NSLog(@"aPeripheral.identifier: %@", [aPeripheral identifier]);
         [_manager stopScan];
         peripheral = aPeripheral;
-        [_manager connectPeripheral:peripheral options:nil];
+        NSDictionary *connectOptions = @{
+        CBConnectPeripheralOptionNotifyOnConnectionKey: @YES,
+        CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES,
+        CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
+//        CBConnectPeripheralOptionEnableTransportBridgingKey:,
+//        CBConnectPeripheralOptionRequiresANCS:,
+        CBConnectPeripheralOptionStartDelayKey: @0
+        };
+        [_manager connectPeripheral:peripheral options:connectOptions];
     }
     
-    if( ![self.discoveredPeripherals containsObject:aPeripheral] )
-    {
-        const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
-        if (deviceName)
-            printf("New Device: %s\n", deviceName);
-        else
-            printf("No Name Device\n");
-        
-        [peripherals addObject:aPeripheral];
-        
-        //        NSUInteger anIndex = 0;
-        //        [_manager stopScan];
-        //        peripheral = [self.discoveredPeripherals objectAtIndex:anIndex];
-        ////        [peripheral retain];
-        //        [_manager connectPeripheral:peripheral options:nil];
-    }
+    [self addToPeripheralList];
+}
+- (void) addToPeripheralList
+{
+    //    if( ![self.discoveredPeripherals containsObject:aPeripheral] )
+    //    {
+    //        [self.discoveredPeripherals addObject:aPeripheral];
+            
+            //        NSUInteger anIndex = 0;
+            //        [_manager stopScan];
+            //        peripheral = [self.discoveredPeripherals objectAtIndex:anIndex];
+            //        [peripheral retain];
+            //        [_manager connectPeripheral:peripheral options:nil];
+    //    }
+    
 }
 //------------------------------------------------------------------------------
 - (void) centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)aPeripheral
@@ -110,10 +118,23 @@ CBUUID *characteristicUuid;
     printf("didConnectPeripheral\n");
     [aPeripheral setDelegate:self];
     [aPeripheral discoverServices:nil];
-    
-    //    self.connected = @"Connected";
-    
 }
+
+- (void)centralManager:(CBCentralManager *)central didRetrievePeripherals:(NSArray *)peripherals
+{
+    NSLog(@"Retrieved peripheral: %lu - %@", [peripherals count], peripherals);
+    
+    [_manager stopScan];
+    
+    /* If there are any known devices, automatically connect to it.*/
+    if([peripherals count] ==1)
+    {
+        peripheral = [peripherals objectAtIndex:0];
+        [_manager connectPeripheral:peripheral
+                            options:nil];
+    }
+}
+
 //------------------------------------------------------------------------------
 - (void)centralManagerDidUpdateState:(CBCentralManager *)manager
 {
@@ -154,24 +175,10 @@ CBUUID *characteristicUuid;
     for (CBService *aService in aPeripheral.services)
     {
         NSLog(@"Service found with UUID: %@", aService.UUID);
-        [aPeripheral discoverCharacteristics:nil forService:aService];
-        /* Service To Search For */
-        //        if ([aService.UUID isEqual:serviceUuid])
-        //        {
-        //            [aPeripheral discoverCharacteristics:nil forService:aService];
-        //        }
-        //        /* Device Information Service */
-        //        else if ([aService.UUID isEqual:[CBUUID UUIDWithString:@"180A"]])
-        //        {
-        //            [aPeripheral discoverCharacteristics:nil forService:aService];
-        //        }
-        //
-        //        /* GAP (Generic Access Profile) for Device Name */
-        //        else if ( [aService.UUID isEqual:[CBUUID UUIDWithString:@"1800"]] )
-        //        {
-        //            [aPeripheral discoverCharacteristics:nil forService:aService];
-        //        }
-        
+        if ([aService.UUID isEqual:[CBUUID UUIDWithString:@"1807"]])
+        {
+            [aPeripheral discoverCharacteristics:@[[CBUUID UUIDWithString:@"2A11"]] forService:aService];
+        }
     }
 }
 //------------------------------------------------------------------------------
@@ -180,34 +187,12 @@ CBUUID *characteristicUuid;
 // Perform appropriate operations on interested characteristics
 - (void) peripheral:(CBPeripheral *)aPeripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
 {
-    printf("didDiscoverCharacteristicsForService\n");
-    //    if ([service.UUID isEqual:serviceUuid])
-    //       {
     for (CBCharacteristic *aChar in service.characteristics)
     {
-        /* Set notification on heart rate measurement */
-        if ([aChar.UUID isEqual:[CBUUID UUIDWithString:@"2A37"]])
+        NSLog(@"Service: %@ with Char: %@", [aChar service].UUID, aChar.UUID);
+        
+        if ([aChar.UUID isEqual:[CBUUID UUIDWithString:@"2A11"]])
         {
-            [peripheral setNotifyValue:YES forCharacteristic:aChar];
-            NSLog(@"Found a Heart Rate Measurement Characteristic");
-        }
-        /* Read body sensor location */
-        else if ([aChar.UUID isEqual:[CBUUID UUIDWithString:@"2A38"]])
-        {
-            [aPeripheral readValueForCharacteristic:aChar];
-            NSLog(@"Found a Body Sensor Location Characteristic");
-        }
-        /* Write heart rate control point */
-        else if ([aChar.UUID isEqual:[CBUUID UUIDWithString:@"2A39"]])
-        {
-            uint8_t val = 1;
-            NSData* valData = [NSData dataWithBytes:(void*)&val length:sizeof(val)];
-            [aPeripheral writeValue:valData forCharacteristic:aChar type:CBCharacteristicWriteWithResponse];
-        }
-        else
-        {
-            NSLog(@"Service: %@ with Char: %@", [aChar service].UUID, aChar.UUID);
-            
             if (aChar.properties & CBCharacteristicPropertyRead)
             {
                 [aPeripheral readValueForCharacteristic:aChar];
@@ -220,17 +205,14 @@ CBUUID *characteristicUuid;
 // Invoked upon completion of a -[readValueForCharacteristic:] request or on the reception of a notification/indication.
 - (void) peripheral:(CBPeripheral *)aPeripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    if ([characteristic.UUID isEqual:characteristicUuid])
-    {
         [self printCharacteristicData:characteristic];
-    }
 }
 
 - (void) printCharacteristicData: (CBCharacteristic *)characteristic
 {
     NSLog(@"Read Characteristics: %@", characteristic.UUID);
     NSData * updatedValue = characteristic.value;
-    NSLog(@"%@: %@",updatedValue, [characteristic debugDescription]);
+    NSLog(@"%@", [characteristic description]);
     printf("%s\n",(char*)updatedValue.bytes);
 }
 //------------------------------------------------------------------------------
