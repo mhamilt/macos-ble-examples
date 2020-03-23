@@ -5,7 +5,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #include <stdio.h>
 //------------------------------------------------------------------------------
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 //------------------------------------------------------------------------------
 CBUUID *serviceUuid;
 CBUUID *characteristicUuid;
@@ -91,7 +91,7 @@ CBUUID *characteristicUuid;
             printf("Found: %s\n", deviceName);
         
         [self.discoveredPeripherals addObject:aPeripheral];
-                
+        
         [_manager stopScan];
         peripheral = aPeripheral;
         NSDictionary *connectOptions = @{
@@ -168,10 +168,7 @@ CBUUID *characteristicUuid;
 #if DEBUG_MODE
         NSLog(@"Service found with UUID: %@", aService.UUID);
 #endif
-        if ([aService.UUID isEqual:[CBUUID UUIDWithString:@"1807"]])
-        {
-            [aPeripheral discoverCharacteristics:@[[CBUUID UUIDWithString:@"2A11"]] forService:aService];
-        }
+        [aPeripheral discoverCharacteristics:@[characteristicUuid] forService:aService];
     }
 }
 //------------------------------------------------------------------------------
@@ -182,17 +179,14 @@ CBUUID *characteristicUuid;
 {
     for (CBCharacteristic *aChar in service.characteristics)
     {
-        #if DEBUG_MODE
+#if DEBUG_MODE
         NSLog(@"Service: %@ with Char: %@", [aChar service].UUID, aChar.UUID);
 #endif
-        if ([aChar.UUID isEqual:[CBUUID UUIDWithString:@"2A11"]])
+        if (aChar.properties & CBCharacteristicPropertyRead)
         {
-            if (aChar.properties & CBCharacteristicPropertyRead)
-            {
-                [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
-                //                [aPeripheral readValueForCharacteristic:aChar];
-                //                [aPeripheral readValueForDescriptor:nil]
-            }
+            [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
+            //                [aPeripheral readValueForCharacteristic:aChar];
+            //                [aPeripheral readValueForDescriptor:nil]
         }
     }
 }
@@ -206,9 +200,11 @@ CBUUID *characteristicUuid;
 
 - (void) printCharacteristicData: (CBCharacteristic *)characteristic
 {
+#if DEBUG_MODE
     NSLog(@"Read Characteristics: %@", characteristic.UUID);
-    NSData * updatedValue = characteristic.value;
     NSLog(@"%@", [characteristic description]);
+#endif
+    NSData * updatedValue = characteristic.value;
     printf("%s\n",(char*)updatedValue.bytes);
 }
 
@@ -220,6 +216,10 @@ CBUUID *characteristicUuid;
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
     
+}
+- (void)peripheral:(CBPeripheral *)peripheral didModifyServices:(NSArray<CBService *> *)invalidatedServices
+{
+    exit(0);
 }
 //------------------------------------------------------------------------------
 @end
