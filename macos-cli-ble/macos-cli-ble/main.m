@@ -9,7 +9,6 @@ CBUUID *characteristicUuid;
 //------------------------------------------------------------------------------
 @interface MyPeripheralManagerDelegate: NSObject<CBPeripheralManagerDelegate>
 @property (nonatomic, assign) CBPeripheralManager* peripheralManager;
-@property (nonatomic) CBPeripheralManagerConnectionLatency nextLatency;
 @property (nonatomic, strong) CBCentral *currentCentral;
 @end
 //------------------------------------------------------------------------------
@@ -27,10 +26,22 @@ CBUUID *characteristicUuid;
     }
 }
 //------------------------------------------------------------------------------
+#pragma mark CENTRAL FUNCTIONS
 - (void)peripheralManager:(CBPeripheralManager *)peripheral
                   central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic
 {
+    _currentCentral = central;
     printf("------------------New Subscription\n------------------ ");
+}
+
+- (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didUnsubscribeFromCharacteristic:(CBCharacteristic *)characteristic
+{
+    _currentCentral = nil;
+    printf("------------------LOST Subscription\n------------------ ");
+}
+- (void)peripheralManagerIsReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral
+{
+    printf("------------------Ready To Update\n------------------ ");
 }
 //------------------------------------------------------------------------------
 - (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral
@@ -39,7 +50,7 @@ CBUUID *characteristicUuid;
     if (peripheral.state == CBManagerStatePoweredOn)
     {
         NSDictionary* dict = @{
-//                        CBAdvertisementDataLocalNameKey: @"BleServiceTest",
+                        CBAdvertisementDataLocalNameKey: @"BleServiceTest",
             //            CBAdvertisementDataSolicitedServiceUUIDsKey: @[serviceUuid],
             CBAdvertisementDataServiceUUIDsKey: @[serviceUuid]
         };
@@ -48,10 +59,13 @@ CBUUID *characteristicUuid;
         
         CBMutableCharacteristic* characteristic = [[CBMutableCharacteristic alloc]
                                                           initWithType:characteristicUuid
-                                                          properties:CBCharacteristicPropertyRead
-                                                          value:nil
+                                                          properties:(
+                                                                      CBCharacteristicPropertyRead |
+                                                                      CBCharacteristicPropertyNotify // needed for didSubscribeToCharacteristic
+                                                                      )
+                                                          value: nil
                                                           permissions:CBAttributePermissionsReadable];
-        
+    
         service.characteristics = @[characteristic];
         [self.peripheralManager addService:service];
         [self.peripheralManager startAdvertising:dict];
@@ -74,11 +88,12 @@ CBUUID *characteristicUuid;
 {
     if ([request.characteristic.UUID isEqualTo:characteristicUuid])
     {
-        [self.peripheralManager setDesiredConnectionLatency:self.nextLatency forCentral:request.central];
+        [self.peripheralManager setDesiredConnectionLatency:CBPeripheralManagerConnectionLatencyLow
+                                                 forCentral:request.central];
         NSString* description = @"ABCD";
         request.value = [description dataUsingEncoding:NSUTF8StringEncoding];
         [self.peripheralManager respondToRequest:request withResult:CBATTErrorSuccess];
-        NSLog(@"didReceiveReadRequest:latencyCharacteristic. Responding with %@", description);
+        NSLog(@"didReceiveReadRequest:latencyCharacteristic. Responding with %@", description);        
     }
     else
     {
