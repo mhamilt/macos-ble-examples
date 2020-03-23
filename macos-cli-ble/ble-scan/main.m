@@ -5,6 +5,8 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #include <stdio.h>
 //------------------------------------------------------------------------------
+#define DEBUG_MODE 1
+//------------------------------------------------------------------------------
 CBUUID *serviceUuid;
 CBUUID *characteristicUuid;
 //------------------------------------------------------------------------------
@@ -73,42 +75,40 @@ CBUUID *characteristicUuid;
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)aPeripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
-    NSMutableArray *peripherals = [self mutableArrayValueForKey:@"discoveredPeripherals"];
+    NSMutableArray *peripherals =  [self mutableArrayValueForKey:@"discoveredPeripherals"];
     const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
     
     if (deviceName)
-        printf("New Device: %s\n", deviceName);
+        printf("Found: %s\n", deviceName);
     
-    if ([[aPeripheral name] isEqualToString: @"Time"])// &&
-//        [[aPeripheral identifier].UUIDString isEqualTo:@"2A26C838-7DA8-4F7E-BA97-5488D3C851E4"])
+    
+    if( ![self.discoveredPeripherals containsObject:aPeripheral] )
     {
-        NSLog(@"aPeripheral.identifier: %@", [aPeripheral identifier]);
+        [peripherals addObject:aPeripheral];
+        const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
+        
+        if (deviceName)
+            printf("Found: %s\n", deviceName);
+        
+        [self.discoveredPeripherals addObject:aPeripheral];
+                
         [_manager stopScan];
         peripheral = aPeripheral;
         NSDictionary *connectOptions = @{
-        CBConnectPeripheralOptionNotifyOnConnectionKey: @YES,
-        CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES,
-        CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
-//        CBConnectPeripheralOptionEnableTransportBridgingKey:,
-//        CBConnectPeripheralOptionRequiresANCS:,
-        CBConnectPeripheralOptionStartDelayKey: @0
+            CBConnectPeripheralOptionNotifyOnConnectionKey: @YES,
+            CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES,
+            CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
+            //        CBConnectPeripheralOptionEnableTransportBridgingKey:,
+            //        CBConnectPeripheralOptionRequiresANCS:,
+            CBConnectPeripheralOptionStartDelayKey: @0
         };
         [_manager connectPeripheral:peripheral options:connectOptions];
     }
-    
-    [self addToPeripheralList:aPeripheral];
 }
-- (void) addToPeripheralList:(CBPeripheral *)aPeripheral
-{
-    if( ![self.discoveredPeripherals containsObject:aPeripheral] )
-    {
-        [self.discoveredPeripherals addObject:aPeripheral];
-    }
-}
+
 //------------------------------------------------------------------------------
 - (void) centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)aPeripheral
 {
-    printf("didConnectPeripheral\n");
     [aPeripheral setDelegate:self];
     [aPeripheral discoverServices:nil];
 }
@@ -131,7 +131,6 @@ CBUUID *characteristicUuid;
 //------------------------------------------------------------------------------
 - (void)centralManagerDidUpdateState:(CBCentralManager *)manager
 {
-    printf("state change\n");
     if ([manager state] == CBManagerStatePoweredOn && shouldScan)
     {
         [self startScan];
@@ -153,8 +152,8 @@ CBUUID *characteristicUuid;
 - (void) startScan
 {
     printf("Start scanning\n");
-    //    [_manager scanForPeripheralsWithServices:[NSArray arrayWithObject:[CBUUID UUIDWithString:myServiceUuid]] options:nil];
-    [_manager scanForPeripheralsWithServices:nil options:nil];
+    [_manager scanForPeripheralsWithServices:[NSArray arrayWithObject: serviceUuid] options:nil];
+    //    [_manager scanForPeripheralsWithServices:nil options:nil];
 }
 
 //------------------------------------------------------------------------------
@@ -164,10 +163,11 @@ CBUUID *characteristicUuid;
 // Discover available characteristics on interested services
 - (void) peripheral:(CBPeripheral *)aPeripheral didDiscoverServices:(NSError *)error
 {
-    printf("didDiscoverServices\n");
     for (CBService *aService in aPeripheral.services)
     {
+#if DEBUG_MODE
         NSLog(@"Service found with UUID: %@", aService.UUID);
+#endif
         if ([aService.UUID isEqual:[CBUUID UUIDWithString:@"1807"]])
         {
             [aPeripheral discoverCharacteristics:@[[CBUUID UUIDWithString:@"2A11"]] forService:aService];
@@ -182,15 +182,16 @@ CBUUID *characteristicUuid;
 {
     for (CBCharacteristic *aChar in service.characteristics)
     {
+        #if DEBUG_MODE
         NSLog(@"Service: %@ with Char: %@", [aChar service].UUID, aChar.UUID);
-        
+#endif
         if ([aChar.UUID isEqual:[CBUUID UUIDWithString:@"2A11"]])
         {
             if (aChar.properties & CBCharacteristicPropertyRead)
             {
                 [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
-//                [aPeripheral readValueForCharacteristic:aChar];
-//                [aPeripheral readValueForDescriptor:nil]
+                //                [aPeripheral readValueForCharacteristic:aChar];
+                //                [aPeripheral readValueForDescriptor:nil]
             }
         }
     }
@@ -200,7 +201,7 @@ CBUUID *characteristicUuid;
 // Invoked upon completion of a -[readValueForCharacteristic:] request or on the reception of a notification/indication.
 - (void) peripheral:(CBPeripheral *)aPeripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-        [self printCharacteristicData:characteristic];
+    [self printCharacteristicData:characteristic];
 }
 
 - (void) printCharacteristicData: (CBCharacteristic *)characteristic
