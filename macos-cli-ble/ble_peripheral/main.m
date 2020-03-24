@@ -124,9 +124,7 @@ CBUUID *characteristicUuid;
 @end
 //------------------------------------------------------------------------------
 int main(int argc, const char * argv[])
-{    
-    serviceUuid        = [CBUUID UUIDWithString:@"29D7544B-6870-45A4-BB7E-D981535F4525"]; // Generated with uuidgen
-    characteristicUuid = [CBUUID UUIDWithString:@"B81672D5-396B-4803-82C2-029D34319015"];
+{        
     @autoreleasepool
     {
         MyPeripheralManagerDelegate *peripheralManagerDelegate = [[MyPeripheralManagerDelegate alloc] init];
