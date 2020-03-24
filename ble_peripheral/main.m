@@ -23,12 +23,12 @@ CBUUID *characteristicUuid;
 {
     switch (state)
     {
-        case CBManagerStatePoweredOff: return @"PoweredOff";
-        case CBManagerStatePoweredOn: return @"PoweredOn";
-        case CBManagerStateResetting: return @"Resetting";
+        case CBManagerStatePoweredOff:   return @"PoweredOff";
+        case CBManagerStatePoweredOn:    return @"PoweredOn";
+        case CBManagerStateResetting:    return @"Resetting";
         case CBManagerStateUnauthorized: return @"Unauthorized";
-        case CBManagerStateUnknown: return @"Unknown";
-        case CBManagerStateUnsupported: return @"Unsupported";
+        case CBManagerStateUnknown:      return @"Unknown";
+        case CBManagerStateUnsupported:  return @"Unsupported";
     }
 }
 //------------------------------------------------------------------------------

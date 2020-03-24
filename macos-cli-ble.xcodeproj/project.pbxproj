@@ -60,8 +60,8 @@
 		58502BB724253ACB00BB76C5 = {
 			isa = PBXGroup;
 			children = (
-				58502BC224253ACB00BB76C5 /* macos-cli-ble */,
-				58502BCF24253AF700BB76C5 /* ble-scan */,
+				58502BC224253ACB00BB76C5 /* ble_peripheral */,
+				58502BCF24253AF700BB76C5 /* ble_central */,
 				58502BC124253ACB00BB76C5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -75,20 +75,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		58502BC224253ACB00BB76C5 /* macos-cli-ble */ = {
+		58502BC224253ACB00BB76C5 /* ble_peripheral */ = {
 			isa = PBXGroup;
 			children = (
 				58502BC324253ACB00BB76C5 /* main.m */,
 			);
-			path = "macos-cli-ble";
+			path = ble_peripheral;
 			sourceTree = "<group>";
 		};
-		58502BCF24253AF700BB76C5 /* ble-scan */ = {
+		58502BCF24253AF700BB76C5 /* ble_central */ = {
 			isa = PBXGroup;
 			children = (
 				58502BD024253AF700BB76C5 /* main.m */,
 			);
-			path = "ble-scan";
+			path = ble_central;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
