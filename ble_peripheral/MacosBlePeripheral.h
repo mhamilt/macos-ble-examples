@@ -31,6 +31,7 @@
 @property (atomic, strong) CBCentral *currentCentral;
 @property (atomic, strong) CBMutableCharacteristic *mainCharacteristic;
 //------------------------------------------------------------------------------
+- (void)initWithQueue;
 - (void)sendValue:(NSString *)data;
 //------------------------------------------------------------------------------
 @end

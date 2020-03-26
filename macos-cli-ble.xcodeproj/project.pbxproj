@@ -11,8 +11,8 @@
 		58502BD124253AF700BB76C5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58502BD024253AF700BB76C5 /* main.m */; };
 		586CBEFC242CF24B00F4048C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CBEFB242CF24B00F4048C /* main.m */; };
 		586CBF01242CF28400F4048C /* MacosBleDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CBF00242CF28400F4048C /* MacosBleDevice.m */; };
-		586CBF04242D01E100F4048C /* MacosBlePeripheral.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CBF03242D01E100F4048C /* MacosBlePeripheral.m */; };
-		586CBF07242D028600F4048C /* MacosBleCentral.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CBF06242D028600F4048C /* MacosBleCentral.m */; };
+		58D0E387242D31A100DF6D3C /* MacosBlePeripheral.m in Sources */ = {isa = PBXBuildFile; fileRef = 58D0E386242D31A100DF6D3C /* MacosBlePeripheral.m */; };
+		58D0E389242D323600DF6D3C /* MacosBleCentral.m in Sources */ = {isa = PBXBuildFile; fileRef = 58D0E388242D323600DF6D3C /* MacosBleCentral.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,9 +54,9 @@
 		586CBEFB242CF24B00F4048C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		586CBF00242CF28400F4048C /* MacosBleDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacosBleDevice.m; sourceTree = "<group>"; };
 		586CBF02242CF29000F4048C /* MacosBleDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacosBleDevice.h; sourceTree = "<group>"; };
-		586CBF03242D01E100F4048C /* MacosBlePeripheral.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacosBlePeripheral.m; sourceTree = "<group>"; };
 		586CBF05242D01EC00F4048C /* MacosBlePeripheral.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacosBlePeripheral.h; sourceTree = "<group>"; };
-		586CBF06242D028600F4048C /* MacosBleCentral.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacosBleCentral.m; sourceTree = "<group>"; };
+		58D0E386242D31A100DF6D3C /* MacosBlePeripheral.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacosBlePeripheral.m; sourceTree = "<group>"; };
+		58D0E388242D323600DF6D3C /* MacosBleCentral.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacosBleCentral.m; sourceTree = "<group>"; };
 		58F885C8242D081B00A163BD /* MacosBleCentral.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacosBleCentral.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,8 +109,8 @@
 			isa = PBXGroup;
 			children = (
 				58502BC324253ACB00BB76C5 /* main.m */,
-				586CBF03242D01E100F4048C /* MacosBlePeripheral.m */,
 				586CBF05242D01EC00F4048C /* MacosBlePeripheral.h */,
+				58D0E386242D31A100DF6D3C /* MacosBlePeripheral.m */,
 			);
 			path = ble_peripheral;
 			sourceTree = "<group>";
@@ -119,8 +119,8 @@
 			isa = PBXGroup;
 			children = (
 				58502BD024253AF700BB76C5 /* main.m */,
-				586CBF06242D028600F4048C /* MacosBleCentral.m */,
 				58F885C8242D081B00A163BD /* MacosBleCentral.h */,
+				58D0E388242D323600DF6D3C /* MacosBleCentral.m */,
 			);
 			path = ble_central;
 			sourceTree = "<group>";
@@ -234,8 +234,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				586CBF04242D01E100F4048C /* MacosBlePeripheral.m in Sources */,
 				58502BC424253ACB00BB76C5 /* main.m in Sources */,
+				58D0E387242D31A100DF6D3C /* MacosBlePeripheral.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,7 +244,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58502BD124253AF700BB76C5 /* main.m in Sources */,
-				586CBF07242D028600F4048C /* MacosBleCentral.m in Sources */,
+				58D0E389242D323600DF6D3C /* MacosBleCentral.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
