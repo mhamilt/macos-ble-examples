@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		58502BC424253ACB00BB76C5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58502BC324253ACB00BB76C5 /* main.m */; };
 		58502BD124253AF700BB76C5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58502BD024253AF700BB76C5 /* main.m */; };
+		586CBEFC242CF24B00F4048C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CBEFB242CF24B00F4048C /* main.m */; };
+		586CBF01242CF28400F4048C /* MacosBleDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CBF00242CF28400F4048C /* MacosBleDevice.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +32,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		586CBEF7242CF24B00F4048C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +48,10 @@
 		58502BC324253ACB00BB76C5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		58502BCE24253AF700BB76C5 /* ble_central */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ble_central; sourceTree = BUILT_PRODUCTS_DIR; };
 		58502BD024253AF700BB76C5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		586CBEF9242CF24B00F4048C /* aggregate_peripheral_central */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = aggregate_peripheral_central; sourceTree = BUILT_PRODUCTS_DIR; };
+		586CBEFB242CF24B00F4048C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		586CBF00242CF28400F4048C /* MacosBleDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacosBleDevice.m; sourceTree = "<group>"; };
+		586CBF02242CF29000F4048C /* MacosBleDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacosBleDevice.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +69,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		586CBEF6242CF24B00F4048C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -62,6 +84,7 @@
 			children = (
 				58502BC224253ACB00BB76C5 /* ble_peripheral */,
 				58502BCF24253AF700BB76C5 /* ble_central */,
+				586CBEFA242CF24B00F4048C /* aggregate_peripheral_central */,
 				58502BC124253ACB00BB76C5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -71,6 +94,7 @@
 			children = (
 				58502BC024253ACB00BB76C5 /* ble_peripheral */,
 				58502BCE24253AF700BB76C5 /* ble_central */,
+				586CBEF9242CF24B00F4048C /* aggregate_peripheral_central */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -89,6 +113,16 @@
 				58502BD024253AF700BB76C5 /* main.m */,
 			);
 			path = ble_central;
+			sourceTree = "<group>";
+		};
+		586CBEFA242CF24B00F4048C /* aggregate_peripheral_central */ = {
+			isa = PBXGroup;
+			children = (
+				586CBEFB242CF24B00F4048C /* main.m */,
+				586CBF00242CF28400F4048C /* MacosBleDevice.m */,
+				586CBF02242CF29000F4048C /* MacosBleDevice.h */,
+			);
+			path = aggregate_peripheral_central;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -128,6 +162,23 @@
 			productReference = 58502BCE24253AF700BB76C5 /* ble_central */;
 			productType = "com.apple.product-type.tool";
 		};
+		586CBEF8242CF24B00F4048C /* aggregate_peripheral_central */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 586CBEFF242CF24B00F4048C /* Build configuration list for PBXNativeTarget "aggregate_peripheral_central" */;
+			buildPhases = (
+				586CBEF5242CF24B00F4048C /* Sources */,
+				586CBEF6242CF24B00F4048C /* Frameworks */,
+				586CBEF7242CF24B00F4048C /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = aggregate_peripheral_central;
+			productName = aggregate_peripheral_central;
+			productReference = 586CBEF9242CF24B00F4048C /* aggregate_peripheral_central */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -141,6 +192,9 @@
 						CreatedOnToolsVersion = 11.3.1;
 					};
 					58502BCD24253AF700BB76C5 = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+					586CBEF8242CF24B00F4048C = {
 						CreatedOnToolsVersion = 11.3.1;
 					};
 				};
@@ -160,6 +214,7 @@
 			targets = (
 				58502BBF24253ACB00BB76C5 /* ble_peripheral */,
 				58502BCD24253AF700BB76C5 /* ble_central */,
+				586CBEF8242CF24B00F4048C /* aggregate_peripheral_central */,
 			);
 		};
 /* End PBXProject section */
@@ -178,6 +233,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				58502BD124253AF700BB76C5 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		586CBEF5242CF24B00F4048C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				586CBEFC242CF24B00F4048C /* main.m in Sources */,
+				586CBF01242CF28400F4048C /* MacosBleDevice.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,6 +397,26 @@
 			};
 			name = Release;
 		};
+		586CBEFD242CF24B00F4048C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XZ388CS8AV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		586CBEFE242CF24B00F4048C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XZ388CS8AV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -359,6 +443,15 @@
 			buildConfigurations = (
 				58502BD324253AF700BB76C5 /* Debug */,
 				58502BD424253AF700BB76C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		586CBEFF242CF24B00F4048C /* Build configuration list for PBXNativeTarget "aggregate_peripheral_central" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				586CBEFD242CF24B00F4048C /* Debug */,
+				586CBEFE242CF24B00F4048C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
