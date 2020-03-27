@@ -14,14 +14,30 @@
     }
 }
 //------------------------------------------------------------------------------
+#pragma mark init funcs
+
+- (instancetype)init
+{
+    return [self initWithQueue:nil];
+}
+- (instancetype)initWithQueue:(dispatch_queue_t) bleQueue
+{
+    self = [super init];
+    if (self)
+    {
+        
+    }
+    return self;
+}
 #pragma mark CENTRAL FUNCTIONS
-- (void)peripheralManager:(CBPeripheralManager *)peripheral
-                  central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic
+- (void) peripheralManager:(CBPeripheralManager *)peripheral
+                   central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic
 {
     _currentCentral = central;
 }
 
-- (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didUnsubscribeFromCharacteristic:(CBCharacteristic *)characteristic
+- (void) peripheralManager: (CBPeripheralManager *)peripheral
+                   central: (CBCentral *)central didUnsubscribeFromCharacteristic:(CBCharacteristic *)characteristic
 {
     _currentCentral = nil;
 }
@@ -40,7 +56,7 @@
     if (peripheral.state == CBManagerStatePoweredOn)
     {
         NSDictionary* dict = @{
-//            CBAdvertisementDataLocalNameKey: @"BleServiceTest",
+            CBAdvertisementDataLocalNameKey: self.disc,
             //            CBAdvertisementDataSolicitedServiceUUIDsKey: @[serviceUuid],
             CBAdvertisementDataServiceUUIDsKey: @[serviceUuid]
         };
@@ -78,7 +94,8 @@
 }
 
 //------------------------------------------------------------------------------
-- (void)peripheralManager:(CBPeripheralManager *)peripheral didReceiveReadRequest:(CBATTRequest *)request
+- (void) peripheralManager: (CBPeripheralManager *)peripheral
+     didReceiveReadRequest: (CBATTRequest *)request
 {
     if ([request.characteristic.UUID isEqualTo:characteristicUuid])
     {
@@ -97,7 +114,7 @@
     }
 }
 
-- (void)sendValue:(NSString *)data
+- (void)sendValue: (NSString *)data
 {
     [self.peripheralManager updateValue:[data dataUsingEncoding:NSUTF8StringEncoding]
                       forCharacteristic:_mainCharacteristic

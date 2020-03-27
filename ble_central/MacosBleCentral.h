@@ -19,11 +19,10 @@
 @interface BluetoothDevicePrinter: NSObject
 <CBCentralManagerDelegate, CBPeripheralDelegate>
 {
-    
-    
-
     bool shouldScan;
     CBPeripheral *peripheral;
+    CBUUID *serviceUuid;
+    CBUUID *characteristicUuid;
     //    NSString *manufacturer;
 }
 //------------------------------------------------------------------------------
@@ -31,15 +30,17 @@
 @property (strong, nonatomic) CBCentralManager * manager;
 @property (atomic) int count;
 @property (nonatomic) dispatch_queue_t bleQueue;
-@property (nonatomic) CBUUID *serviceUuid;
-@property (nonatomic) CBUUID *characteristicUuid;
+//@property (nonatomic) CBUUID *serviceUuid;
+//@property (nonatomic) CBUUID *characteristicUuid;
 @property (copy) NSString *manufacturer;
 
 //------------------------------------------------------------------------------
-//- (id)init;
-- (void)centralManagerDidUpdateState:(CBCentralManager *)central;
+- (instancetype)init;
+- (instancetype)initWithQueue: (dispatch_queue_t) centralDelegateQueue;
+- (instancetype)initWithQueue: (dispatch_queue_t) centralDelegateQueue
+                serviceToScan: (CBUUID *) scanServiceId
+         characteristicToRead: (CBUUID *) characteristicId;
 - (void)startScan;
-- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI;
 //------------------------------------------------------------------------------
 @end
 

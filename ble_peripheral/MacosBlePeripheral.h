@@ -31,7 +31,7 @@
 @property (atomic, strong) CBCentral *currentCentral;
 @property (atomic, strong) CBMutableCharacteristic *mainCharacteristic;
 //------------------------------------------------------------------------------
-- (void)initWithQueue;
+- (instancetype)initWithQueue:(dispatch_queue_t) bleQueue;
 - (void)sendValue:(NSString *)data;
 //------------------------------------------------------------------------------
 @end
