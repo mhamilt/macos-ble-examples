@@ -54,22 +54,20 @@
                   RSSI:(NSNumber *)RSSI
 {
     NSMutableArray *peripherals =  [self mutableArrayValueForKey:@"discoveredPeripherals"];
-//    const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
-//    if (deviceName)
-//        printf("Found: %s\n", deviceName);
+    const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
+    if (deviceName)
+        printf("Found: %s\n", deviceName);
     
+//    if ([[aPeripheral name] isEqualToString: @"BaronVonTigglestest"])
+//    {
+//        [self connectToPeripheral: aPeripheral];
+//    }
     
-    if( ![self.discoveredPeripherals containsObject:aPeripheral] )
+    if( ![self.discoveredPeripherals containsObject:aPeripheral] && deviceName)
     {
         [peripherals addObject:aPeripheral];
-     
-        const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
-        
-        if (deviceName)
-            printf("Found: %s\n", deviceName);
-        
         [self.discoveredPeripherals addObject:aPeripheral];
-//        [self connectToPeripheral: aPeripheral];
+        [self connectToPeripheral: aPeripheral];
     }
 }
 
