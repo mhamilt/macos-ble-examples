@@ -41,4 +41,3 @@ TX Characteristic UUID: 6E400002-B5A3-F393-E0A9-E50E24DCCA9E
 RX Characteristic UUID: 6E400003-B5A3-F393-E0A9-E50E24DCCA9E
 ```
 
-**A device running iOS or macOS cannot run Nordic BLE UART as a peripheral.**
