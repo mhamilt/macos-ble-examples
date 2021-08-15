@@ -1,4 +1,4 @@
-#import "MacosBlePeripheral.h"
+#import "MyPeripheralManagerDelegate.h"
 //------------------------------------------------------------------------------
 @implementation MyPeripheralManagerDelegate
 + (NSString*)stringFromCBManagerState:(CBManagerState)state

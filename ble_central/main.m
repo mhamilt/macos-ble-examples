@@ -2,7 +2,7 @@
  Scan and list found devices
  */
 #import <Foundation/Foundation.h>
-#import "MacosBleCentral.h"
+#import "BluetoothDevicePrinter.h"
 //------------------------------------------------------------------------------
 int main(int argc, const char * argv[])
 {
