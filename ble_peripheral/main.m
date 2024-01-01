@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "MacosBlePeripheral.h"
+#import "MyPeripheralManagerDelegate.h"
 //------------------------------------------------------------------------------
 int main(int argc, const char * argv[])
 {        
