@@ -6,7 +6,14 @@
 //------------------------------------------------------------------------------
 int main(int argc, const char * argv[])
 {
-    [BluetoothDevicePrinter new];
-    CFRunLoopRun();
+    @autoreleasepool {
+        dispatch_queue_t bleQueue;
+        BluetoothDevicePrinter * blePrinter = [BluetoothDevicePrinter new];
+        CBCentralManager* central = [[CBCentralManager alloc] initWithDelegate:blePrinter
+                                                                         queue:bleQueue];        
+        
+        CFRunLoopRun();
+    }
     return 0;
 }
+

@@ -1,115 +1,129 @@
 //------------------------------------------------------------------------------
 #import "BluetoothDevicePrinter.h"
 //------------------------------------------------------------------------------
+///
 @implementation BluetoothDevicePrinter
 //------------------------------------------------------------------------------
-@synthesize discoveredPeripherals;
+@synthesize manager;
 //------------------------------------------------------------------------------
 - (instancetype)init
-{
-    return [self initWithQueue:nil];
-}
-//------------------------------------------------------------------------------
-- (instancetype)initWithQueue: (dispatch_queue_t) centralDelegateQueue
-{
-    return [self initWithQueue: centralDelegateQueue
-//                 serviceToScan: nil
-//          characteristicToRead: nil];
-                 serviceToScan: [CBUUID UUIDWithString: @"29D7544B-6870-45A4-BB7E-D981535F4525"]
-          characteristicToRead: [CBUUID UUIDWithString: @"B81672D5-396B-4803-82C2-029D34319015"]];
-}
-
-- (instancetype)initWithQueue: (dispatch_queue_t) centralDelegateQueue
-                serviceToScan: (CBUUID *) scanServiceId
-         characteristicToRead: (CBUUID *) characteristicId
 {
     self = [super init];
     if (self)
     {
-        self.discoveredPeripherals = [NSMutableArray array];
-        _count=0;
-        shouldScan = true;
-        _bleQueue = centralDelegateQueue;
-        serviceUuid = scanServiceId;
-        characteristicUuid = characteristicId;
-        _manager = [[CBCentralManager alloc] initWithDelegate: self
-                                                        queue: _bleQueue];
+        discoveredPeripherals = [NSMutableArray array];
     }
     return self;
 }
 
-//------------------------------------------------------------------------------
-- (void)dealloc
+- (void)handleTimer:(NSTimer*)theTimer {
+    NSArray* argv = (NSArray*) [theTimer userInfo];
+    CBCentralManager* central = (CBCentralManager*)argv[0];
+    CBPeripheral* aPeripheral = (CBPeripheral*)argv[1];
+    switch(aPeripheral.state)
+    {
+        case CBPeripheralStateConnecting:
+            NSLog(@"-------- Cancel Connection -----------");
+            [central cancelPeripheralConnection: aPeripheral];
+            break;
+        default:
+            if (readDataTimeout) {
+                [readDataTimeout invalidate];
+            }
+            readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                               target:self
+                                                             selector:@selector(peripheralReadTimeout:)
+                                                             userInfo:aPeripheral
+                                                              repeats:NO];
+            
+            [theTimer invalidate];
+            
+            break;
+    }
+}
+
+- (void)peripheralReadTimeout:(NSTimer*)theTimer 
 {
-    [_manager stopScan];
-    //    [_manager dealloc]
+    CBPeripheral* aPeripheral = (CBPeripheral*) [theTimer userInfo];
+    
+    @try {
+        [manager cancelPeripheralConnection: aPeripheral];
+    } @catch (NSException *exception) {
+        NSLog(@"Error Disconnecting. Restart Scanning");
+        [manager scanForPeripheralsWithServices:nil options:nil];
+    }
+    
 }
 
 //------------------------------------------------------------------------------
 #pragma mark Manager Methods
+
+
+- (void)centralManagerDidUpdateState:(CBCentralManager *)manager
+{
+    self.manager = manager;
+    printf("%s\n", __PRETTY_FUNCTION__);
+    if ([manager state] == CBManagerStatePoweredOn)
+    {
+        [manager scanForPeripheralsWithServices:nil options:nil];
+    }
+}
 
 - (void)centralManager:(CBCentralManager *)central
  didDiscoverPeripheral:(CBPeripheral *)aPeripheral
      advertisementData:(NSDictionary *)advertisementData
                   RSSI:(NSNumber *)RSSI
 {
-    NSMutableArray *peripherals =  [self mutableArrayValueForKey:@"discoveredPeripherals"];
-    const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
-    if (deviceName)
-        printf("Found: %s\n", deviceName);
-    
-//    if ([[aPeripheral name] isEqualToString: @"BaronVonTigglestest"])
-//    {
-//        [self connectToPeripheral: aPeripheral];
-//    }
-    
-    if( ![self.discoveredPeripherals containsObject:aPeripheral] && deviceName)
+    if (![discoveredPeripherals containsObject: aPeripheral])
     {
-        [peripherals addObject:aPeripheral];
-        [self.discoveredPeripherals addObject:aPeripheral];
-        [self connectToPeripheral: aPeripheral];
+        [discoveredPeripherals addObject:aPeripheral];
+        NSLog(@"Attempt Connection to %@", aPeripheral);
+                
+//        [central connectPeripheral:aPeripheral options:nil];
+        [central connectPeripheral:aPeripheral options:@{
+            CBConnectPeripheralOptionNotifyOnConnectionKey: @YES,
+            CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES,
+            CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
+            //        CBConnectPeripheralOptionEnableTransportBridgingKey:,
+            //        CBConnectPeripheralOptionRequiresANCS:,
+            CBConnectPeripheralOptionStartDelayKey: @0
+        }];
+        [central stopScan];
+        [NSTimer scheduledTimerWithTimeInterval:5.0
+                                         target:self
+                                       selector:@selector(handleTimer:)
+                                       userInfo:@[central, aPeripheral]
+                                        repeats:NO];
     }
 }
 
 //------------------------------------------------------------------------------
+
 - (void) centralManager: (CBCentralManager *)central
    didConnectPeripheral: (CBPeripheral *)aPeripheral
 {
+    if (readDataTimeout) {
+        [readDataTimeout invalidate];
+    }
+    readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                       target:self
+                                                     selector:@selector(peripheralReadTimeout:)
+                                                     userInfo:aPeripheral
+                                                      repeats:NO];
+    
+    printf("%s\n", __PRETTY_FUNCTION__);
     [aPeripheral setDelegate:self];
     [aPeripheral discoverServices:nil];
 }
 
-- (void) centralManager:(CBCentralManager *)central
- didRetrievePeripherals:(NSArray *)peripherals
-{
-    NSLog(@"Retrieved peripheral: %lu - %@", [peripherals count], peripherals);
-    
-    [_manager stopScan];
-    
-    /* If there are any known devices, automatically connect to it.*/
-    if([peripherals count] >=1)
-    {
-        peripheral = [peripherals objectAtIndex:0];
-        [_manager connectPeripheral:peripheral
-                            options:nil];
-    }
-}
-
-//------------------------------------------------------------------------------
-- (void)centralManagerDidUpdateState:(CBCentralManager *)manager
-{
-    if ([manager state] == CBManagerStatePoweredOn && shouldScan)
-    {
-        [self startScan];
-    }
-}
 //------------------------------------------------------------------------------
 // Invoked whenever an existing connection with the peripheral is torn down.
 - (void) centralManager: (CBCentralManager *)central
 didDisconnectPeripheral: (CBPeripheral *)aPeripheral
                   error: (NSError *)error
 {
-    printf("didDisconnectPeripheral\n");
+    printf("%s\n", __PRETTY_FUNCTION__);
+    [central scanForPeripheralsWithServices:nil options:nil];
 }
 //------------------------------------------------------------------------------
 /// Invoked whenever the central manager fails to create a connection with the peripheral.
@@ -118,37 +132,7 @@ didDisconnectPeripheral: (CBPeripheral *)aPeripheral
 {
     NSLog(@"Fail to connect to peripheral: %@ with error = %@", aPeripheral, [error localizedDescription]);
 }
-//------------------------------------------------------------------------------
-- (void) startScan
-{
-    printf("Start scanning\n");
-    
-    if (!serviceUuid)
-    {
-        [_manager scanForPeripheralsWithServices: nil
-                                         options: nil];
-    }
-    else
-    {
-        [_manager scanForPeripheralsWithServices: [NSArray arrayWithObject: serviceUuid]
-                                         options: nil];
-    }
-}
 
-- (void) connectToPeripheral: (CBPeripheral *)aPeripheral
-{
-    [_manager stopScan];
-    peripheral = aPeripheral;
-    NSDictionary *connectOptions = @{
-        CBConnectPeripheralOptionNotifyOnConnectionKey: @YES,
-        CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES,
-        CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
-        //        CBConnectPeripheralOptionEnableTransportBridgingKey:,
-        //        CBConnectPeripheralOptionRequiresANCS:,
-        CBConnectPeripheralOptionStartDelayKey: @0
-    };
-    [_manager connectPeripheral:peripheral options:connectOptions];
-}
 //------------------------------------------------------------------------------
 #pragma mark Peripheral Methods
 
@@ -157,12 +141,18 @@ didDisconnectPeripheral: (CBPeripheral *)aPeripheral
 - (void) peripheral: (CBPeripheral *)aPeripheral
 didDiscoverServices:(NSError *)error
 {
+    [readDataTimeout invalidate];
+    readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                       target:self
+                                                     selector:@selector(peripheralReadTimeout:)
+                                                     userInfo:aPeripheral
+                                                      repeats:NO];
+    
+    NSLog(@"didDiscoverServices");
     for (CBService *aService in aPeripheral.services)
     {
-#if DEBUG_MODE
         NSLog(@"Service found with UUID: %@", aService.UUID);
-#endif
-        [aPeripheral discoverCharacteristics:@[characteristicUuid]
+        [aPeripheral discoverCharacteristics:nil
                                   forService:aService];
     }
 }
@@ -172,49 +162,59 @@ didDiscoverServices:(NSError *)error
 // Perform appropriate operations on interested characteristics
 - (void) peripheral: (CBPeripheral *)aPeripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
 {
+    [readDataTimeout invalidate];
+    readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                       target:self
+                                                     selector:@selector(peripheralReadTimeout:)
+                                                     userInfo:aPeripheral
+                                                      repeats:NO];
     for (CBCharacteristic *aChar in service.characteristics)
     {
-#if DEBUG_MODE
         NSLog(@"Service: %@ with Char: %@", [aChar service].UUID, aChar.UUID);
-#endif
         if (aChar.properties & CBCharacteristicPropertyRead)
         {
             [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
-            //                [aPeripheral readValueForCharacteristic:aChar];
-            //                [aPeripheral readValueForDescriptor:nil]
+            [aPeripheral readValueForCharacteristic:aChar];
         }
     }
 }
 //------------------------------------------------------------------------------
 
 // Invoked upon completion of a -[readValueForCharacteristic:] request or on the reception of a notification/indication.
-- (void) peripheral: (CBPeripheral *)aPeripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
+- (void) peripheral: (CBPeripheral *)aPeripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic 
+              error:(NSError *)error
 {
-    [self printCharacteristicData:characteristic];
+    printf("%s\n", __PRETTY_FUNCTION__);
+    [readDataTimeout invalidate];
+    readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                       target:self
+                                                     selector:@selector(peripheralReadTimeout:)
+                                                     userInfo:aPeripheral
+                                                      repeats:NO];
+    [self printCharacteristicData: characteristic];
 }
 
 - (void) printCharacteristicData: (CBCharacteristic *)characteristic
 {
-#if DEBUG_MODE
     NSLog(@"Read Characteristics: %@", characteristic.UUID);
     NSLog(@"%@", [characteristic description]);
-#endif
+
     NSData * updatedValue = characteristic.value;
     printf("%s\n",(char*)updatedValue.bytes);
 }
 
 - (void) peripheral: (CBPeripheral *)peripheral didDiscoverDescriptorsForCharacteristic:(CBDescriptor *)descriptor error:(NSError *)error
 {
-    
+    printf("%s\n", __PRETTY_FUNCTION__);
 }
 
 - (void)peripheral: (CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    
+    printf("%s\n", __PRETTY_FUNCTION__);
 }
 - (void)peripheral: (CBPeripheral *)peripheral didModifyServices:(NSArray<CBService *> *)invalidatedServices
 {
-    exit(0);
+    printf("%s\n", __PRETTY_FUNCTION__);
 }
 //------------------------------------------------------------------------------
 @end
