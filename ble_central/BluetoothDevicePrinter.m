@@ -75,10 +75,10 @@
      advertisementData:(NSDictionary *)advertisementData
                   RSSI:(NSNumber *)RSSI
 {
-    printf("%s\n", __PRETTY_FUNCTION__);
     
     if (![discoveredPeripherals containsObject: aPeripheral])
     {
+        printf("%s\n", __PRETTY_FUNCTION__);
         [discoveredPeripherals addObject:aPeripheral];
         NSLog(@"Attempt Connection to %@", aPeripheral);
                 
