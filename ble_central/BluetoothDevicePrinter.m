@@ -61,8 +61,9 @@
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)manager
 {
-    self.manager = manager;
     printf("%s\n", __PRETTY_FUNCTION__);
+    
+    self.manager = manager;
     if ([manager state] == CBManagerStatePoweredOn)
     {
         [manager scanForPeripheralsWithServices:nil options:nil];
@@ -74,6 +75,8 @@
      advertisementData:(NSDictionary *)advertisementData
                   RSSI:(NSNumber *)RSSI
 {
+    printf("%s\n", __PRETTY_FUNCTION__);
+    
     if (![discoveredPeripherals containsObject: aPeripheral])
     {
         [discoveredPeripherals addObject:aPeripheral];
@@ -102,6 +105,8 @@
 - (void) centralManager: (CBCentralManager *)central
    didConnectPeripheral: (CBPeripheral *)aPeripheral
 {
+    printf("%s\n", __PRETTY_FUNCTION__);
+    
     if (readDataTimeout) {
         [readDataTimeout invalidate];
     }
@@ -111,7 +116,6 @@
                                                      userInfo:aPeripheral
                                                       repeats:NO];
     
-    printf("%s\n", __PRETTY_FUNCTION__);
     [aPeripheral setDelegate:self];
     [aPeripheral discoverServices:nil];
 }
@@ -130,6 +134,7 @@ didDisconnectPeripheral: (CBPeripheral *)aPeripheral
 - (void) centralManager: (CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)aPeripheral
                   error:(NSError *)error
 {
+    printf("%s\n", __PRETTY_FUNCTION__);
     NSLog(@"Fail to connect to peripheral: %@ with error = %@", aPeripheral, [error localizedDescription]);
 }
 
@@ -141,6 +146,8 @@ didDisconnectPeripheral: (CBPeripheral *)aPeripheral
 - (void) peripheral: (CBPeripheral *)aPeripheral
 didDiscoverServices:(NSError *)error
 {
+    printf("%s\n", __PRETTY_FUNCTION__);
+    
     [readDataTimeout invalidate];
     readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
                                                        target:self
@@ -162,6 +169,8 @@ didDiscoverServices:(NSError *)error
 // Perform appropriate operations on interested characteristics
 - (void) peripheral: (CBPeripheral *)aPeripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
 {
+    printf("%s\n", __PRETTY_FUNCTION__);
+    
     [readDataTimeout invalidate];
     readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
                                                        target:self
@@ -185,6 +194,7 @@ didDiscoverServices:(NSError *)error
               error:(NSError *)error
 {
     printf("%s\n", __PRETTY_FUNCTION__);
+    
     [readDataTimeout invalidate];
     readDataTimeout = [NSTimer scheduledTimerWithTimeInterval:5.0
                                                        target:self
